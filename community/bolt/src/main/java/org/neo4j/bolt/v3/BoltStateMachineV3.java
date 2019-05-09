@@ -36,9 +36,9 @@ import org.neo4j.logging.internal.LogService;
 public class BoltStateMachineV3 extends BoltStateMachineV1
 {
 
-    public BoltStateMachineV3( BoltStateMachineSPI boltSPI, BoltChannel boltChannel, Clock clock, LogService logging) //ch add
+    public BoltStateMachineV3( BoltStateMachineSPI boltSPI, BoltChannel boltChannel, Clock clock, LogService logging ) //ch add
     {
-        super( boltSPI, boltChannel, clock, logging);
+        super( boltSPI, boltChannel, clock, logging );
     }
 
     @Override

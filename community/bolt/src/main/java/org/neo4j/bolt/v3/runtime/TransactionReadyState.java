@@ -44,7 +44,8 @@ public class TransactionReadyState extends FailSafeBoltStateMachineState
     private BoltStateMachineState readyState;
 
     private final Log logging; // ch add
-    public TransactionReadyState( LogService logService ){
+    public TransactionReadyState( LogService logService )
+    {
         this.logging = logService.getUserLog( getClass() );
     }
 

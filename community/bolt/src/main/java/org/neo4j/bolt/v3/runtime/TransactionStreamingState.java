@@ -27,7 +27,7 @@ import org.neo4j.logging.internal.LogService;
 public class TransactionStreamingState extends AbstractStreamingState
 {
     private final Log logging; // ch add
-    public TransactionStreamingState(LogService logService)
+    public TransactionStreamingState( LogService logService )
     {
         this.logging = logService.getUserLog( getClass() );
     }

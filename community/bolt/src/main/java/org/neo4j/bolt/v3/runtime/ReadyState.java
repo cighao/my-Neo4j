@@ -33,7 +33,6 @@ import org.neo4j.values.storable.Values;
 import static org.neo4j.util.Preconditions.checkState;
 import static org.neo4j.values.storable.Values.stringArray;
 
-import org.neo4j.logging.internal.LogService;
 import org.neo4j.logging.Log;
 
 /**
@@ -57,7 +56,6 @@ public class ReadyState extends FailSafeBoltStateMachineState
     {
         this.logging = logService.getUserLog( getClass() );
     }
-
 
     @Override
     public BoltStateMachineState processUnsafe( RequestMessage message, StateMachineContext context ) throws Exception

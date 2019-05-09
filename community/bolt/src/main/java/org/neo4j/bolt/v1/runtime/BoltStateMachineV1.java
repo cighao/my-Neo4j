@@ -85,7 +85,7 @@ public class BoltStateMachineV1 implements BoltStateMachine
         this.failedState = states.failed;
     }
 
-    public BoltStateMachineV1( BoltStateMachineSPI spi, BoltChannel boltChannel, Clock clock)
+    public BoltStateMachineV1( BoltStateMachineSPI spi, BoltChannel boltChannel, Clock clock )
     {
         this.id = boltChannel.id();
         this.boltChannel = boltChannel;
@@ -97,7 +97,6 @@ public class BoltStateMachineV1 implements BoltStateMachine
         this.state = states.initial;
         this.failedState = states.failed;
     }
-
 
     @Override
     public void process( RequestMessage message, BoltResponseHandler handler ) throws BoltConnectionFatality

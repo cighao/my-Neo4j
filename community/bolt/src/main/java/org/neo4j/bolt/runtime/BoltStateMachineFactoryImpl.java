@@ -87,7 +87,8 @@ public class BoltStateMachineFactoryImpl implements BoltStateMachineFactory
 
     private BoltStateMachine newStateMachineV3( BoltChannel boltChannel )
     {
-        TransactionStateMachineSPI transactionSPI = new TransactionStateMachineV3SPI( getActiveDatabase(), boltChannel, getAwaitDuration(), clock, logging ); // ch add
+        TransactionStateMachineSPI transactionSPI = new TransactionStateMachineV3SPI( getActiveDatabase(), boltChannel,
+                getAwaitDuration(), clock, logging ); // ch add
         BoltStateMachineSPI boltSPI = new BoltStateMachineV1SPI( usageData, logging, authentication, transactionSPI );
         return new BoltStateMachineV3( boltSPI, boltChannel, clock, logging ); //ch add
     }
