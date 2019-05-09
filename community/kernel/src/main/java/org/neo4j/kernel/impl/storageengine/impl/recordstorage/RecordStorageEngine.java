@@ -146,6 +146,8 @@ public class RecordStorageEngine implements StorageEngine, Lifecycle
     private final int denseNodeThreshold;
     private final int recordIdBatchSize;
 
+    private LogProvider userLogProvider; //ch add
+
     public RecordStorageEngine(
             DatabaseLayout databaseLayout,
             Config config,
@@ -180,6 +182,8 @@ public class RecordStorageEngine implements StorageEngine, Lifecycle
         this.indexConfigStore = indexConfigStore;
         this.constraintSemantics = constraintSemantics;
         this.explicitIndexTransactionOrdering = explicitIndexTransactionOrdering;
+
+        this.userLogProvider = userLogProvider; //ch add
 
         this.idController = idController;
         StoreFactory factory = new StoreFactory( databaseLayout, config, idGeneratorFactory, pageCache, fs, logProvider,
@@ -223,6 +227,14 @@ public class RecordStorageEngine implements StorageEngine, Lifecycle
             throw failure;
         }
     }
+
+    // ch add
+    @Override
+    public LogProvider getLogProvider ()
+    {
+        return this.userLogProvider;
+    }
+
 
     @Override
     public StorageReader newReader()

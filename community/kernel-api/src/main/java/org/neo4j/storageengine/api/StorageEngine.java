@@ -28,6 +28,7 @@ import org.neo4j.internal.kernel.api.exceptions.schema.ConstraintValidationExcep
 import org.neo4j.internal.kernel.api.exceptions.schema.CreateConstraintFailureException;
 import org.neo4j.io.pagecache.IOLimiter;
 import org.neo4j.kernel.lifecycle.Lifecycle;
+import org.neo4j.logging.LogProvider;
 import org.neo4j.storageengine.api.lock.ResourceLocker;
 import org.neo4j.storageengine.api.txstate.ReadableTransactionState;
 import org.neo4j.storageengine.api.txstate.TxStateVisitor;
@@ -46,6 +47,8 @@ public interface StorageEngine
      * {@link #apply(CommandsToApply, TransactionApplicationMode) applied} to this storage.
      */
     StorageReader newReader();
+
+    public LogProvider getLogProvider ();  // ch add
 
     /**
      * @return a new {@link CommandCreationContext} meant to be kept for multiple calls to
