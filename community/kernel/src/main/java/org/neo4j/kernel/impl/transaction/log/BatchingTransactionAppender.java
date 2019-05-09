@@ -43,6 +43,8 @@ import org.neo4j.kernel.impl.transaction.tracing.SerializeTransactionEvent;
 import org.neo4j.kernel.impl.util.IdOrderingQueue;
 import org.neo4j.kernel.internal.DatabaseHealth;
 import org.neo4j.kernel.lifecycle.LifecycleAdapter;
+import org.neo4j.logging.Log;
+import org.neo4j.logging.LogProvider;
 
 import static org.neo4j.kernel.impl.api.TransactionToApply.TRANSACTION_ID_NOT_SPECIFIED;
 import static org.neo4j.kernel.impl.transaction.log.entry.LogEntryStart.checksum;
@@ -71,6 +73,21 @@ public class BatchingTransactionAppender extends LifecycleAdapter implements Tra
     private FlushablePositionAwareChannel writer;
     private TransactionLogWriter transactionLogWriter;
     private IndexCommandDetector indexCommandDetector;
+
+    // ch add logging.
+    private Log logging;
+    public BatchingTransactionAppender(LogFiles logFiles, LogRotation logRotation,
+                                       TransactionMetadataCache transactionMetadataCache, TransactionIdStore transactionIdStore,
+                                       IdOrderingQueue explicitIndexTransactionOrdering, DatabaseHealth databaseHealth, LogProvider userLogProvider)
+    {
+        this.logging = userLogProvider.getLog(getClass());
+        this.logFile = logFiles.getLogFile();
+        this.logRotation = logRotation;
+        this.transactionIdStore = transactionIdStore;
+        this.explicitIndexTransactionOrdering = explicitIndexTransactionOrdering;
+        this.databaseHealth = databaseHealth;
+        this.transactionMetadataCache = transactionMetadataCache;
+    }
 
     public BatchingTransactionAppender( LogFiles logFiles, LogRotation logRotation,
             TransactionMetadataCache transactionMetadataCache, TransactionIdStore transactionIdStore,

@@ -537,7 +537,7 @@ public class NeoStoreDataSource extends LifecycleAdapter
 
         final TransactionAppender appender = life.add( new BatchingTransactionAppender(
                 logFiles, logRotation, transactionMetadataCache, transactionIdStore, explicitIndexTransactionOrdering,
-                databaseHealth ) );
+                databaseHealth, userLogProvider ) ); // ch add userLogProvider
         final LogicalTransactionStore logicalTransactionStore =
                 new PhysicalLogicalTransactionStore( logFiles, transactionMetadataCache, logEntryReader, monitors,
                         failOnCorruptedLogFiles );
@@ -713,7 +713,7 @@ public class NeoStoreDataSource extends LifecycleAdapter
             if ( databaseHealth.isHealthy() )
             {
                 // Flushing of neo stores happens as part of the checkpoint
-                transactionLogModule.checkPointing().forceCheckPoint( new SimpleTriggerInfo( "Database shutdown" ) );
+                transactionLogModule.checkPointing().forceCheckPoint( new SimpleTriggerInfo( "database shutdown" ) );
             }
         } );
     }
