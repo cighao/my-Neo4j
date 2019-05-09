@@ -30,22 +30,33 @@ import org.neo4j.storageengine.api.TransactionApplicationMode;
 import static org.neo4j.kernel.api.exceptions.Status.Transaction.TransactionCommitFailed;
 import static org.neo4j.kernel.api.exceptions.Status.Transaction.TransactionLogError;
 
+import org.neo4j.logging.Log;
+
 public class TransactionRepresentationCommitProcess implements TransactionCommitProcess
 {
     private final TransactionAppender appender;
     private final StorageEngine storageEngine;
 
+    private final Log logging; // ch add
+
     public TransactionRepresentationCommitProcess( TransactionAppender appender, StorageEngine storageEngine )
     {
         this.appender = appender;
         this.storageEngine = storageEngine;
+        this.logging = storageEngine.getLogProvider().getLog( getClass() ); // ch add
     }
 
     @Override
     public long commit( TransactionToApply batch, CommitEvent commitEvent,
             TransactionApplicationMode mode ) throws TransactionFailureException
     {
+        long start = System.currentTimeMillis(); // ch add
+
         long lastTxId = appendToLog( batch, commitEvent );
+
+        long end = System.currentTimeMillis(); // ch add
+        logging.info( "appendToLog:" + Long.toString( end - start ) );
+
         try
         {
             applyToStore( batch, commitEvent, mode );
