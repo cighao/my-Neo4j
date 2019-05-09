@@ -43,6 +43,7 @@ import org.neo4j.graphdb.security.AuthorizationExpiredException;
 import org.neo4j.internal.kernel.api.exceptions.KernelException;
 import org.neo4j.internal.kernel.api.exceptions.TransactionFailureException;
 import org.neo4j.kernel.api.exceptions.Status;
+import org.neo4j.logging.internal.LogService;
 
 /**
  * This state machine oversees the exchange of messages for the Bolt protocol.
@@ -68,7 +69,23 @@ public class BoltStateMachineV1 implements BoltStateMachine
     private BoltStateMachineState state;
     private final BoltStateMachineState failedState;
 
-    public BoltStateMachineV1( BoltStateMachineSPI spi, BoltChannel boltChannel, Clock clock )
+    // ch add
+    public LogService logging;  //ch
+    public BoltStateMachineV1( BoltStateMachineSPI spi, BoltChannel boltChannel, Clock clock, LogService logging )
+    {
+        this.logging = logging;  //ch
+        this.id = boltChannel.id();
+        this.boltChannel = boltChannel;
+        this.spi = spi;
+        this.connectionState = new MutableConnectionState();
+        this.context = new BoltStateMachineV1Context( this, boltChannel, spi, connectionState, clock );
+
+        States states = buildStates();
+        this.state = states.initial;
+        this.failedState = states.failed;
+    }
+
+    public BoltStateMachineV1( BoltStateMachineSPI spi, BoltChannel boltChannel, Clock clock)
     {
         this.id = boltChannel.id();
         this.boltChannel = boltChannel;
@@ -80,6 +97,7 @@ public class BoltStateMachineV1 implements BoltStateMachine
         this.state = states.initial;
         this.failedState = states.failed;
     }
+
 
     @Override
     public void process( RequestMessage message, BoltResponseHandler handler ) throws BoltConnectionFatality

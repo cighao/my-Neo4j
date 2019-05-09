@@ -31,22 +31,24 @@ import org.neo4j.bolt.v3.runtime.ReadyState;
 import org.neo4j.bolt.v3.runtime.StreamingState;
 import org.neo4j.bolt.v3.runtime.TransactionReadyState;
 import org.neo4j.bolt.v3.runtime.TransactionStreamingState;
+import org.neo4j.logging.internal.LogService;
 
 public class BoltStateMachineV3 extends BoltStateMachineV1
 {
-    public BoltStateMachineV3( BoltStateMachineSPI boltSPI, BoltChannel boltChannel, Clock clock )
+
+    public BoltStateMachineV3( BoltStateMachineSPI boltSPI, BoltChannel boltChannel, Clock clock, LogService logging) //ch add
     {
-        super( boltSPI, boltChannel, clock );
+        super( boltSPI, boltChannel, clock, logging);
     }
 
     @Override
     protected States buildStates()
     {
         ConnectedState connected = new ConnectedState();
-        ReadyState ready = new ReadyState();
+        ReadyState ready = new ReadyState( this.logging );
         StreamingState streaming = new StreamingState();
-        TransactionReadyState txReady = new TransactionReadyState();
-        TransactionStreamingState txStreaming = new TransactionStreamingState();
+        TransactionReadyState txReady = new TransactionReadyState( this.logging );
+        TransactionStreamingState txStreaming = new TransactionStreamingState( this.logging );
         FailedState failed = new FailedState();
         InterruptedState interrupted = new InterruptedState();
 
@@ -75,5 +77,18 @@ public class BoltStateMachineV3 extends BoltStateMachineV1
         interrupted.setReadyState( ready );
 
         return new States( connected, failed );
+    }
+
+    @Override
+    protected void after()
+    {
+        if ( connectionState.isTerminated() )
+        {
+            close();
+        }
+        else
+        {
+            super.after();
+        }
     }
 }

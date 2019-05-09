@@ -21,9 +21,17 @@ package org.neo4j.bolt.v3.runtime;
 
 import org.neo4j.bolt.runtime.BoltStateMachineState;
 import org.neo4j.bolt.runtime.StateMachineContext;
+import org.neo4j.logging.Log;
+import org.neo4j.logging.internal.LogService;
 
 public class TransactionStreamingState extends AbstractStreamingState
 {
+    private final Log logging; // ch add
+    public TransactionStreamingState(LogService logService)
+    {
+        this.logging = logService.getUserLog( getClass() );
+    }
+
     @Override
     public String name()
     {
@@ -33,8 +41,13 @@ public class TransactionStreamingState extends AbstractStreamingState
     @Override
     protected BoltStateMachineState processStreamResultMessage( boolean pull, StateMachineContext context ) throws Throwable
     {
+        long start = System.currentTimeMillis(); // ch add
+
         context.connectionState().getStatementProcessor().streamResult(
                 recordStream -> context.connectionState().getResponseHandler().onRecords( recordStream, pull ) );
+
+        long end = System.currentTimeMillis(); // ch add
+        logging.info( "processStreamResult:" + Long.toString( end - start ) );
         return readyState;
     }
 }

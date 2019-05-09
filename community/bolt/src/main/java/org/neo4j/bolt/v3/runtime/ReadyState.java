@@ -27,10 +27,14 @@ import org.neo4j.bolt.runtime.StatementProcessor;
 import org.neo4j.bolt.v3.messaging.request.BeginMessage;
 import org.neo4j.bolt.v3.messaging.request.RunMessage;
 import org.neo4j.internal.kernel.api.exceptions.KernelException;
+import org.neo4j.logging.internal.LogService;
 import org.neo4j.values.storable.Values;
 
 import static org.neo4j.util.Preconditions.checkState;
 import static org.neo4j.values.storable.Values.stringArray;
+
+import org.neo4j.logging.internal.LogService;
+import org.neo4j.logging.Log;
 
 /**
  * The READY state indicates that the connection is ready to accept a
@@ -47,6 +51,13 @@ public class ReadyState extends FailSafeBoltStateMachineState
 
     static final String FIELDS_KEY = "fields";
     static final String FIRST_RECORD_AVAILABLE_KEY = "t_first";
+
+    private final Log logging; // ch add
+    public ReadyState( LogService logService )
+    {
+        this.logging = logService.getUserLog( getClass() );
+    }
+
 
     @Override
     public BoltStateMachineState processUnsafe( RequestMessage message, StateMachineContext context ) throws Exception
@@ -94,8 +105,14 @@ public class ReadyState extends FailSafeBoltStateMachineState
 
     private BoltStateMachineState processBeginMessage( BeginMessage message, StateMachineContext context ) throws Exception
     {
+        long start = System.currentTimeMillis(); // ch add
+
         StatementProcessor statementProcessor = context.connectionState().getStatementProcessor();
         statementProcessor.beginTransaction( message.bookmark(), message.transactionTimeout(), message.transactionMetadata() );
+
+        long end = System.currentTimeMillis(); // ch add
+        logging.info( "processBeginMessage:" + Long.toString( end - start ) );
+
         return txReadyState;
     }
 

@@ -29,6 +29,8 @@ import org.neo4j.bolt.v3.messaging.request.CommitMessage;
 import org.neo4j.bolt.v3.messaging.request.RollbackMessage;
 import org.neo4j.bolt.v3.messaging.request.RunMessage;
 import org.neo4j.internal.kernel.api.exceptions.KernelException;
+import org.neo4j.logging.Log;
+import org.neo4j.logging.internal.LogService;
 import org.neo4j.values.storable.Values;
 
 import static org.neo4j.bolt.v3.runtime.ReadyState.FIELDS_KEY;
@@ -40,6 +42,11 @@ public class TransactionReadyState extends FailSafeBoltStateMachineState
 {
     private BoltStateMachineState streamingState;
     private BoltStateMachineState readyState;
+
+    private final Log logging; // ch add
+    public TransactionReadyState( LogService logService ){
+        this.logging = logService.getUserLog( getClass() );
+    }
 
     @Override
     public BoltStateMachineState processUnsafe( RequestMessage message, StateMachineContext context ) throws Exception
@@ -77,6 +84,8 @@ public class TransactionReadyState extends FailSafeBoltStateMachineState
 
     private BoltStateMachineState processRunMessage( RunMessage message, StateMachineContext context ) throws KernelException
     {
+        long start1 = System.currentTimeMillis(); // ch add
+
         long start = context.clock().millis();
         StatementProcessor statementProcessor = context.connectionState().getStatementProcessor();
         StatementMetadata statementMetadata = statementProcessor.run( message.statement(), message.params() );
@@ -84,14 +93,24 @@ public class TransactionReadyState extends FailSafeBoltStateMachineState
 
         context.connectionState().onMetadata( FIELDS_KEY, stringArray( statementMetadata.fieldNames() ) );
         context.connectionState().onMetadata( FIRST_RECORD_AVAILABLE_KEY, Values.longValue( end - start ) );
+
+        long end1 = System.currentTimeMillis(); // ch add
+        logging.info( "processRunMessage:" + Long.toString( end1 - start1 ) );
+
         return streamingState;
     }
 
     private BoltStateMachineState processCommitMessage( StateMachineContext context ) throws Exception
     {
+        long start = System.currentTimeMillis(); // ch add
+
         StatementProcessor statementProcessor = context.connectionState().getStatementProcessor();
         Bookmark bookmark = statementProcessor.commitTransaction();
         bookmark.attachTo( context.connectionState() );
+
+        long end = System.currentTimeMillis(); // ch add
+        logging.info( "commitMessage:" + Long.toString( end - start ) );
+
         return readyState;
     }
 
